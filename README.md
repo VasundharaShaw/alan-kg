@@ -51,8 +51,8 @@ alan-literature-mining/
 You need Python 3.9 or newer and Git.
 
 ```bash
-git clone <repository-url>
-cd alan-literature-mining
+git clone https://github.com/VasundharaShaw/alan-kg.git
+cd alan-kg
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
@@ -171,7 +171,6 @@ The graph is considered good enough when (1) it reproduces the expected answers 
 ## Author
 
 Vasundhara Shaw
-
 ## License
 
-No license has been chosen yet. Until one is added, all rights are reserved by the author.
+Released under the [MIT License](LICENSE).
