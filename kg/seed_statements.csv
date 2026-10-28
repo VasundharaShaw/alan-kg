@@ -1,0 +1,29 @@
+subject,property,object,source
+illuminance,reported_in,lx,Dickerson 2026 Table 1
+illuminance,used_by,lighting engineers,Dickerson 2026 Table 1
+illuminance,used_by,policymakers,Dickerson 2026 Table 1
+illuminance,used_by,ecologists,Dickerson 2026 Table 1
+luminance,reported_in,lm/m2/sr,Dickerson 2026 Table 1
+luminance,reported_in,cd/m2,Dickerson 2026 Table 1
+luminance,used_by,lighting engineers,Dickerson 2026 Table 1
+radiance,reported_in,W/m2/sr,Dickerson 2026 Table 1
+radiance,used_by,astronomers,Dickerson 2026 Table 1
+radiance,used_by,visual ecologists,Dickerson 2026 Table 1
+irradiance,reported_in,W/m2,Dickerson 2026 Table 1
+irradiance,used_by,biologists,Dickerson 2026 Table 1
+irradiance,used_by,ecologists,Dickerson 2026 Table 1
+photon irradiance,reported_in,umol/m2/s,Dickerson 2026 Table 1
+photon irradiance,used_by,plant biologists,Dickerson 2026 Table 1
+photon irradiance,used_by,ecologists,Dickerson 2026 Table 1
+night sky brightness,reported_in,mag/arcsec2,Dickerson 2026 Table 1
+night sky brightness,used_by,astronomers,Dickerson 2026 Table 1
+spectral irradiance,reported_in,W/m2/nm,Dickerson 2026 Table 1
+spectral irradiance,used_by,biologists,Dickerson 2026 Table 1
+spectral irradiance,used_by,lighting engineers,Dickerson 2026 Table 1
+spectral irradiance,used_by,visual ecologists,Dickerson 2026 Table 1
+spectral radiance,reported_in,W/m2/sr/nm,Dickerson 2026 Table 1
+spectral radiance,used_by,biologists,Dickerson 2026 Table 1
+spectral radiance,used_by,visual ecologists,Dickerson 2026 Table 1
+spectral radiance,used_by,lighting engineers,Dickerson 2026 Table 1
+multispectral radiance,used_by,astronomers,Dickerson 2026 Table 1
+multispectral radiance,used_by,ecologists,Dickerson 2026 Table 1
