@@ -25,10 +25,17 @@ spectral radiance,reported_in,W/m2/sr/nm,Dickerson 2026 Table 1
 spectral radiance,used_by,biologists,Dickerson 2026 Table 1
 spectral radiance,used_by,visual ecologists,Dickerson 2026 Table 1
 spectral radiance,used_by,lighting engineers,Dickerson 2026 Table 1
-multispectral radiance,used_by,astronomers,Dickerson 2026 Table 1
-multispectral radiance,used_by,ecologists,Dickerson 2026 Table 1
 illuminance,photometric_version_of,irradiance,Dickerson 2026 Table 1
 luminance,photometric_version_of,radiance,Dickerson 2026 Table 1
 spectral irradiance,spectral_version_of,irradiance,Dickerson 2026 Table 1
 spectral radiance,spectral_version_of,radiance,Dickerson 2026 Table 1
 photon irradiance,photon_version_of,irradiance,Dickerson 2026 Table 1   
+night sky brightness,expresses,radiance,Dickerson 2026 Table 1
+night sky brightness,given_in_band,V-band,Dickerson 2026 Table 1
+multispectral imaging device,used_by,astronomers,Dickerson 2026 Table 1
+multispectral imaging device,used_by,ecologists,Dickerson 2026 Table 1
+multispectral imaging device,measures,radiance,Dickerson 2026 Table 1
+multispectral imaging device,measures,luminance,Dickerson 2026 Table 1
+multispectral imaging device,can_derive,irradiance,Dickerson 2026 Table 1
+multispectral imaging device,can_derive,illuminance,Dickerson 2026 Table 1
+photon irradiance,often_reported_for,photosynthetically active radiation,Dickerson 2026 Table 1
