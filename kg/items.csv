@@ -1,0 +1,12 @@
+item,class
+illuminance,quantity
+luminance,quantity
+radiance,quantity
+irradiance,quantity
+photon irradiance,quantity
+night sky brightness,quantity
+spectral irradiance,quantity
+spectral radiance,quantity
+multispectral imaging device,instrument
+V-band,spectral band
+photosynthetically active radiation,spectral band
