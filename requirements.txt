@@ -40,3 +40,4 @@ tzdata==2026.5
 urllib3==2.6.3
 wcwidth==0.9.4
 zipp==3.23.1
+rdflib==7.6.0

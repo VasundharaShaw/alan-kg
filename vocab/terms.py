@@ -39,4 +39,17 @@ TAXA = [
     "loggerhead", "Caretta caretta", "zooplankton", "Daphnia", "coral",
     "crab", "sandhopper", "mammal", "vertebrate", "microbial",
     "plant", "tree", "grassland",
+    "zebrafish", "elasmobranch", "shark",
+    "seabird", "petrel", "Procellariiformes",
+        "Drosophila", "deer", "mouse", "mice", "rat", "lizard", "anole",
+    "frog", "amphipod", "chipmunk", "epiphyte", "wildlife",
+
+]
+
+HUMAN_HEALTH = [
+    "patient", "participant", "cohort", "clinical", "cancer", "obesity",
+    "diabetes", "depression", "anxiety", "insomnia", "sleep", "shift work",
+    "mental health", "cardiovascular", "glucose", "blood pressure",
+    "chronotype", "wearable", "COVID", "adolescent", "children", "women",
+    "epidemiology",
 ]
