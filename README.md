@@ -17,12 +17,14 @@ The graph is intended to be hosted in a Wikibase instance.
 
 ## How it works
 
-1. **Fetch** papers from OpenAlex (and later Europe PMC) for a defined search and date window.
+1. **Fetch** papers from OpenAlex (and later Europe PMC) for a defined search and date window. The current window is two years: 27 October 2024 to 27 October 2026.
 2. **Match** the title and abstract of each paper against controlled word lists (rules, no machine learning).
 3. **Tabulate** the results as a CSV: one row per paper, with the matched terms per category.
 4. **Flag scope** by marking papers about human health, rather than biodiversity, as off-topic (see [Scope: biodiversity, not human health](#scope-biodiversity-not-human-health)).
-5. **Curate** a seed set of statements by hand from review papers (`kg/seed_statements.csv`).
-6. **Build** the knowledge graph from the curated statements plus the paper-to-concept links.
+5. **Mark** duplicate records and peer-review records (decision letters, author responses) in two extra columns, without deleting any rows.
+6. **Curate** a seed set of statements by hand from review papers (`kg/seed_statements.csv`).
+7. **Map** matched words to knowledge-graph items with `kg/term_map.csv`, and write one "paper mentions item" statement per match (`data/output/mentions.csv`).
+8. **Build** the knowledge graph from the curated statements plus the paper-mentions statements (planned).
 
 The work is done in rounds: scan with the current word lists, review what was missed, extend the lists, scan again.
 
@@ -42,7 +44,8 @@ alan-literature-mining/
 │   └── 01_explore_openalex.ipynb   # term matching, scope flag, summary numbers, output table
 ├── kg/
 │   ├── seed_statements.csv  # hand-curated statements (subject, property, object, source)
-│   └── items.csv            # class of each item (quantity, instrument, spectral band, ...)
+│   ├── items.csv            # class of each item (quantity, instrument, spectral band, ...)
+│   └── term_map.csv         # word-list term -> KG item, with match type (exact or broad)
 └── data/
     ├── raw/                 # downloaded data (not tracked by Git)
     └── output/              # result tables (not tracked by Git)
@@ -160,29 +163,35 @@ Rules for this file: lowercase spelling throughout, one value per cell, no comma
 - Short tokens (for example "bat", "W") can produce false hits and need review.
 - Results depend on the search phrase, so some relevant papers may not be retrieved yet.
 - The scope flag is rule-based and approximate: an animal missing from the taxa list can be flagged as human health, which is why the `unsure` group is read by hand.
-- The download contains duplicate records (for example a preprint and its published version with the same title) and some papers that never mention light. Neither is filtered out yet.
+- Duplicates are found only by identical title (after ignoring case and punctuation). A preprint whose title was reworded for publication is not caught. Duplicates and peer-review records are marked in `is_duplicate` and `is_review_record`, not deleted.
+- Some papers never mention light in a meaningful way (for example "References" or book reviews) and some titles are not in English. Neither is filtered out yet.
+- `term_map.csv` marks each row `exact` or `broad`. Broad rows are approximate: for example "ecology" maps to the item "ecologists", which only says that the word appears in an abstract. Such statements carry little information and should be excluded when answering questions.
+- Only mapped words produce graph statements. In the first run, 353 statements came from 279 of 1,527 papers (18%).
 
 ## Progress so far
 
-Snapshot from 18 November 2026. Green boxes are done, grey boxes are still to do.
+Snapshot from 19 November 2026. Green boxes are done, grey boxes are still to do.
 
 ```mermaid
 flowchart TD
-    A["Fetch from OpenAlex<br/>2,227 papers"]:::done --> B["Match title + abstract<br/>against word lists"]:::done
-    B --> C["1,423 match at least one term (64%)"]:::done
-    B --> D["804 match nothing (36%)"]:::done
+    A["Fetch from OpenAlex<br/>2,227 papers, 2 years<br/>(27 Oct 2024 - 27 Oct 2026)"]:::done --> B["Match title + abstract<br/>against word lists"]:::done
+    B --> C["1,613 match at least one term (72%)"]:::done
+    B --> D["614 match nothing (28%)"]:::done
     A --> E["Scope flag<br/>human health vs biodiversity"]:::done
-    E --> F["1,666 in scope"]:::done
-    E --> G["451 off-topic"]:::done
-    E --> H["110 unsure, read by hand"]:::done
-    F --> I["385 of 1,666 still match nothing (23%)"]:::todo
-    I --> J["Round 2: extend word lists"]:::todo
+    E --> F["1,668 in scope"]:::done
+    E --> G["455 off-topic"]:::done
+    E --> H["104 unsure, read by hand"]:::done
+    A --> M1["Mark duplicates (29)<br/>and peer-review records (13)"]:::done
+    F --> I["277 of 1,668 in scope still match nothing (17%)"]:::todo
+    I --> J["Further word-list rounds, junk and language filter"]:::todo
     S["Seed KG: 40 triples from<br/>Dickerson et al. 2026 Table 1"]:::done --> K["Classify the 16 remaining items"]:::todo
-    J --> L["Map matched words to KG items"]:::todo
-    K --> L
-    L --> M["Generate 'paper mentions concept' statements"]:::todo
-    M --> N["Local graph (rdflib), run the Q1 questions"]:::todo
-    N --> O["Draft note to Franz Hölker"]:::todo
+    F --> L["Map matched words to KG items<br/>(kg/term_map.csv)"]:::done
+    M1 --> L
+    L --> N["353 mention statements<br/>from 279 of 1,527 papers"]:::done
+    N --> P["Remove uninformative broad rows<br/>(ecology -> ecologists)"]:::todo
+    K --> Q["Local graph (rdflib), run the Q1 questions"]:::todo
+    P --> Q
+    Q --> O["Draft note to Franz Hölker"]:::todo
     classDef done fill:#d4edda,stroke:#2d6a4f,color:#000
     classDef todo fill:#eeeeee,stroke:#888888,color:#000
 ```
@@ -195,27 +204,35 @@ Word-list progress, with the effect of each change on the number of papers that 
 | 17 Nov | + zebrafish, elasmobranch, shark | 938 |
 | 17 Nov | + seabird, petrel, Procellariiformes | 937 |
 | 18 Nov | + Drosophila, deer, mouse, mice, rat, lizard, anole, frog, amphipod, chipmunk, epiphyte, wildlife | 804 |
+| 19 Nov | + animals (mosquito, cricket, mussel, insect, ...), sky and policy words, first extension of the health list | 637 |
+| 19 Nov | Health list pruned (words that also apply to animals removed), seed-item terms added (luminance, cd/m2, ...) | 614 |
 
-Scope on 18 November: 1,666 papers in scope, 451 off-topic, 110 unsure. Of the 1,666 in-scope papers, 385 (23%) match no term in any category.
+Scope on 19 November: 1,668 papers in scope, 455 off-topic, 104 unsure. Of the 1,668 in-scope papers, 277 (17%) match no term in any category.
+
+Duplicates and peer-review records: 29 rows are marked as duplicates (identical title) and 13 as peer-review records. After removing both and the papers without a DOI, 1,527 papers feed the graph.
+
+Paper-mentions statements: the first run of `kg/term_map.csv` produced 353 statements (232 exact, 121 broad) from 279 papers. The most frequent items are ecologists (99, all from the broad rule "ecology"), lx (98), radiance (43), illuminance (35) and night sky brightness (25). Nine map terms were never found in the kept papers (PAR, W/m2, cd/m2, lighting engineering, magnitudes per square arcsecond, spectral irradiance, spectral radiance, umol/s, umol photons); it is still to be checked whether they are rare or a matching problem.
 
 ## Current status
 
 **Working**
-- Download of all OpenAlex results for the phrase "artificial light at night" (2,227 papers)
+- Download of all OpenAlex results for the phrase "artificial light at night" (2,227 papers, 27 Oct 2024 to 27 Oct 2026)
 - Term matching on titles and abstracts with an output table
 - Scope flag: a simple flag and a three-way `scope` column (human health versus biodiversity)
+- Marking of duplicates (`is_duplicate`) and peer-review records (`is_review_record`)
 - Word-list changes tracked in a progress log in the notebook
 - Seed statements from Dickerson et al. (2026), Table 1: 40 triples, 27 items, 11 of them classified in `kg/items.csv`
+- A first term map (`kg/term_map.csv`) and "paper mentions item" statements (`data/output/mentions.csv`)
 
 **Planned**
-- More rounds of word-list extension, with a log of new terms per round
-- Additional search phrases (light pollution, skyglow, night sky brightness, ...), and removal of duplicate records
-- A second flag for papers that never mention light
-- Canonical item names: a mapping from each matched word-list term to a KG item, so that surface forms ("sky brightness") and item names ("night sky brightness") agree
+- Check why nine map terms were never found, and remove or relabel uninformative broad rows
+- Local graph with rdflib: seed statements plus mention statements, and the three Q1 questions run against it
 - Classes for the 16 unclassified seed items, and loading into a Wikibase instance
-- "Paper mentions concept" statements generated from the table, kept separate from the curated statements
+- Additional search phrases (light pollution, skyglow, night sky brightness, ...), and removal of near-duplicate records
+- A flag for papers that never mention light, and a language filter
+- Further word-list rounds for the remaining unmatched in-scope papers
 - Europe PMC as a second source
-- A second table from the full text of open-access papers (the `is_open_access` column already marks them)
+- Open versus closed datasets: the `is_open_access` column already marks them, and a second table from the full text of open-access papers is planned
 - Seed statements from Table 2 (measurement techniques)
 - Validation against hand-read abstracts
 
