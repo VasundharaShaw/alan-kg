@@ -30,6 +30,8 @@ DISCIPLINES = [
     "astronomy", "physics", "ecology", "chronobiology", "psychology",
     "engineering", "lighting engineering", "visual ecology", "toxicology",
     "photobiology", "radiometry", "photometry", "conservation",
+    "astronomy", "observatory", "dark sky", "night sky", "skyglow",
+    "lighting design", "urban planning", "tourism", "regulation", "legislation",
 ]
 
 TAXA = [
@@ -41,15 +43,22 @@ TAXA = [
     "plant", "tree", "grassland",
     "zebrafish", "elasmobranch", "shark",
     "seabird", "petrel", "Procellariiformes",
-        "Drosophila", "deer", "mouse", "mice", "rat", "lizard", "anole",
+    "Drosophila", "deer", "mouse", "mice", "rat", "lizard", "anole",
     "frog", "amphipod", "chipmunk", "epiphyte", "wildlife",
+    "prion", "egret", "heron", "cattle", "cricket", "mosquito", "Culex",
+    "bivalve", "mussel", "Mytilus", "Ampithoe", "herbivore", "quail",
+    "monkey", "capuchin", "primate", "insect", "arthropod", "alga", "macroalga",
+    "Trichoptera", "caddisfly", "grass", "phenology",
+    "crane", "crayfish", "gecko", "barnacle", "stickleback", "broiler", "chicken",
+    "invertebrate", "macroinvertebrate", "nematode", "amphibian", "toad", "Bufo",
+    "anemone", "jellyfish", "Medusozoa", "benthic", "zooplankton", "Grus",
 
 ]
 
 HUMAN_HEALTH = [
-    "patient", "participant", "cohort", "clinical", "cancer", "obesity",
+    "patient", "participant", "cancer", "cohort", "clinical", "obesity",
     "diabetes", "depression", "anxiety", "insomnia", "sleep", "shift work",
     "mental health", "cardiovascular", "glucose", "blood pressure",
-    "chronotype", "wearable", "COVID", "adolescent", "children", "women",
-    "epidemiology",
+    "wearable", "COVID", "adolescent", "children", "women", "epidemiology",
+    "cesarean", "neonatal", "childhood", "bedtime", "occupational", "ergonomic",
 ]
