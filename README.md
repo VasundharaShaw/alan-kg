@@ -23,8 +23,8 @@ The graph is intended to be hosted in a Wikibase instance.
 4. **Flag scope** by marking papers about human health, rather than biodiversity, as off-topic (see [Scope: biodiversity, not human health](#scope-biodiversity-not-human-health)).
 5. **Mark** duplicate records and peer-review records (decision letters, author responses) in two extra columns, without deleting any rows.
 6. **Curate** a seed set of statements by hand from review papers (`kg/seed_statements.csv`).
-7. **Map** matched words to knowledge-graph items with `kg/term_map.csv`, and write one "paper mentions item" statement per match (`data/output/mentions.csv`).
-8. **Build** the knowledge graph from the curated statements plus the paper-mentions statements (planned).
+7. **Map** matched words to knowledge-graph items with `kg/term_map.csv` (a method or discipline word without a row becomes an item of its own), and write one "paper mentions item" statement per match (`data/output/mentions.csv`).
+8. **Build** a small local graph (rdflib) from the curated statements plus the paper-mentions statements, and query it for two questions from `questions.md`.
 
 The work is done in rounds: scan with the current word lists, review what was missed, extend the lists, scan again.
 
@@ -154,6 +154,79 @@ Rules for this file: lowercase spelling throughout, one value per cell, no comma
 | `can_derive` | an instrument can derive a quantity |
 | `often_reported_for` | a quantity is often reported for a purpose |
 
+## The toy graph at a glance
+
+Two layers are kept apart. Teal boxes are curated by hand from Dickerson et al. (2026), Table 1. Purple boxes are found only by mining abstracts. An arrow from the papers box means "paper mentions item", and its number is how many papers mention it. The mined layer is what connects papers to the curated quantities, units and instrument. The picture is a selection (5 of 9 quantities, one unit each, not every statement), based on the run of 20 November 2026.
+
+```mermaid
+flowchart TB
+    P["ALAN papers<br/>1,525 used"]
+
+    subgraph mined["Mined only, from abstracts"]
+        sat["satellite"]
+        rs["remote sensing"]
+        radm["radiometer"]
+        sqm["Sky Quality Meter"]
+        cons["conservation"]
+        ns["night sky"]
+        sg["skyglow"]
+        tour["tourism"]
+    end
+
+    subgraph seed["Curated seed graph"]
+        ill["illuminance"]
+        lum["luminance"]
+        rdn["radiance"]
+        irr["irradiance"]
+        nsb["night sky brightness"]
+        lx["lx"]
+        cdm2["cd/m2"]
+        wsr["W/m2/sr"]
+        wm2["W/m2"]
+        mag["mag/arcsec2"]
+        le["lighting engineers"]
+        eco["ecologists"]
+        ast["astronomers"]
+        msid["multispectral imaging device"]
+
+        ill -- reported_in --> lx
+        lum -- reported_in --> cdm2
+        rdn -- reported_in --> wsr
+        irr -- reported_in --> wm2
+        nsb -- reported_in --> mag
+        ill -- used_by --> le
+        ill -- used_by --> eco
+        irr -- used_by --> eco
+        rdn -- used_by --> ast
+        nsb -- used_by --> ast
+        msid -- measures --> rdn
+        msid -- measures --> lum
+    end
+
+    P -- "68" --> sat
+    P -- "36" --> rs
+    P -- "20" --> radm
+    P -- "10" --> sqm
+    P -- "232" --> cons
+    P -- "41" --> ns
+    P -- "22" --> sg
+    P -- "22" --> tour
+    P -- "98" --> lx
+    P -- "43" --> rdn
+    P -- "35" --> ill
+    P -- "25" --> nsb
+    P -- "8" --> msid
+
+    classDef papers fill:#eeeeee,stroke:#888888,color:#000
+    classDef minedc fill:#EEEDFE,stroke:#534AB7,color:#000
+    classDef seedc fill:#E1F5EE,stroke:#0F6E56,color:#000
+    class P papers
+    class sat,rs,radm,sqm,cons,ns,sg,tour minedc
+    class ill,lum,rdn,irr,nsb,lx,cdm2,wsr,wm2,mag,le,eco,ast,msid seedc
+```
+
+The words "conservation", "night sky", "skyglow" and "tourism" are fields and topics, not measurement items, so a link between them and a method only shows that both words appear in the same abstract.
+
 ## Known limitations
 
 - A match in an abstract means a term is **mentioned**, not that a method was **used**. Links derived from word-list matches mean "mentioned together".
@@ -165,12 +238,14 @@ Rules for this file: lowercase spelling throughout, one value per cell, no comma
 - The scope flag is rule-based and approximate: an animal missing from the taxa list can be flagged as human health, which is why the `unsure` group is read by hand.
 - Duplicates are found only by identical title (after ignoring case and punctuation). A preprint whose title was reworded for publication is not caught. Duplicates and peer-review records are marked in `is_duplicate` and `is_review_record`, not deleted.
 - Some papers never mention light in a meaningful way (for example "References" or book reviews) and some titles are not in English. Neither is filtered out yet.
-- `term_map.csv` marks each row `exact` or `broad`. Broad rows are approximate: for example "ecology" maps to the item "ecologists", which only says that the word appears in an abstract. Such statements carry little information and should be excluded when answering questions.
-- Only mapped words produce graph statements. In the first run, 353 statements came from 279 of 1,527 papers (18%).
+- `term_map.csv` marks each row `exact` or `broad`. Broad rows are approximate (for example "multispectral" for the item "multispectral imaging device"), and a broad match is stored under a separate property, `mentions_broadly`, so it can be left out of a query.
+- The "disciplines" list also holds topic words (conservation, tourism, regulation, night sky, skyglow, urban planning, lighting design). Question 2 therefore shows which fields and topics appear together with which methods, which is co-occurrence and not evidence that a field used a method.
+- Only quantity, unit and method words with a map row, plus method and discipline words (as items of their own), produce graph statements. In the latest run, 1,069 statements came from 668 of 1,525 papers (44%).
+- `dose-response` is in the methods list but is a statistical term, not a measurement method, so it gives a few false hits.
 
 ## Progress so far
 
-Snapshot from 19 November 2026. Green boxes are done, grey boxes are still to do.
+Snapshot from 20 November 2026. Green boxes are done, grey boxes are still to do.
 
 ```mermaid
 flowchart TD
@@ -181,17 +256,18 @@ flowchart TD
     E --> F["1,668 in scope"]:::done
     E --> G["455 off-topic"]:::done
     E --> H["104 unsure, read by hand"]:::done
-    A --> M1["Mark duplicates (29)<br/>and peer-review records (13)"]:::done
+    A --> M1["Mark duplicates (29)<br/>and peer-review records (18)"]:::done
     F --> I["277 of 1,668 in scope still match nothing (17%)"]:::todo
     I --> J["Further word-list rounds, junk and language filter"]:::todo
     S["Seed KG: 40 triples from<br/>Dickerson et al. 2026 Table 1"]:::done --> K["Classify the 16 remaining items"]:::todo
     F --> L["Map matched words to KG items<br/>(kg/term_map.csv)"]:::done
     M1 --> L
-    L --> N["353 mention statements<br/>from 279 of 1,527 papers"]:::done
-    N --> P["Remove uninformative broad rows<br/>(ecology -> ecologists)"]:::todo
-    K --> Q["Local graph (rdflib), run the Q1 questions"]:::todo
-    P --> Q
-    Q --> O["Draft note to Franz Hölker"]:::todo
+    L --> N["1,069 mention statements<br/>from 668 of 1,525 papers"]:::done
+    N --> P["Separate fields from topics<br/>(conservation, tourism, ...)"]:::todo
+    N --> Q["Local graph (rdflib):<br/>78 curated + 1,796 mined triples"]:::done
+    S --> Q
+    Q --> R["Q1 and Q2 answered<br/>(methods; fields with methods)"]:::done
+    R --> O["Draft note to Franz Hölker"]:::todo
     classDef done fill:#d4edda,stroke:#2d6a4f,color:#000
     classDef todo fill:#eeeeee,stroke:#888888,color:#000
 ```
@@ -209,9 +285,13 @@ Word-list progress, with the effect of each change on the number of papers that 
 
 Scope on 19 November: 1,668 papers in scope, 455 off-topic, 104 unsure. Of the 1,668 in-scope papers, 277 (17%) match no term in any category.
 
-Duplicates and peer-review records: 29 rows are marked as duplicates (identical title) and 13 as peer-review records. After removing both and the papers without a DOI, 1,527 papers feed the graph.
+Duplicates and peer-review records: 29 rows are marked as duplicates (identical title) and 18 as peer-review records. After removing both and the 109 papers without a DOI, 1,525 papers feed the graph.
 
-Paper-mentions statements: the first run of `kg/term_map.csv` produced 353 statements (232 exact, 121 broad) from 279 papers. The most frequent items are ecologists (99, all from the broad rule "ecology"), lx (98), radiance (43), illuminance (35) and night sky brightness (25). Nine map terms were never found in the kept papers (PAR, W/m2, cd/m2, lighting engineering, magnitudes per square arcsecond, spectral irradiance, spectral radiance, umol/s, umol photons); it is still to be checked whether they are rare or a matching problem.
+Paper-mentions statements: the latest run produced 1,069 statements (1,058 exact, 11 broad) from 668 of the 1,525 papers. The most frequent items are conservation (232), regulation (106), ecology (99), lx (98), satellite (68), radiance (43) and illuminance (35); the first three are topic words, not measurement items. Eight map terms were never found in the kept papers (PAR, W/m2, cd/m2, magnitudes per square arcsecond, spectral irradiance, spectral radiance, umol/s, umol photons). A check showed that they are rare or absent in abstracts and not a matching fault, as expected because units and instruments are mostly reported in the Methods section.
+
+First answers from the local graph (78 curated and 1,796 mined triples):
+- Question 1, methods mentioned and in how many papers: satellite 68, remote sensing 36, radiometer 20, Sky Quality Meter 10, multispectral imaging device 8, hyperspectral 6, drone 5.
+- Question 2, fields and topics with methods in the same paper: conservation with satellite (11) and remote sensing (10); night sky with Sky Quality Meter (7) and satellite (7); tourism with satellite (5).
 
 ## Current status
 
@@ -222,11 +302,12 @@ Paper-mentions statements: the first run of `kg/term_map.csv` produced 353 state
 - Marking of duplicates (`is_duplicate`) and peer-review records (`is_review_record`)
 - Word-list changes tracked in a progress log in the notebook
 - Seed statements from Dickerson et al. (2026), Table 1: 40 triples, 27 items, 11 of them classified in `kg/items.csv`
-- A first term map (`kg/term_map.csv`) and "paper mentions item" statements (`data/output/mentions.csv`)
+- A term map (`kg/term_map.csv`) and "paper mentions item" statements (`data/output/mentions.csv`)
+- A small local graph with rdflib (curated and mined statements kept in separate graphs), and questions 1 and 2 of `questions.md` answered against it
 
 **Planned**
-- Check why nine map terms were never found, and remove or relabel uninformative broad rows
-- Local graph with rdflib: seed statements plus mention statements, and the three Q1 questions run against it
+- Separate fields from topics in the word lists, and merge more method synonyms in the term map
+- Questions 3 to 6 of `questions.md` (for example the change in method mentions from 2024 to 2026)
 - Classes for the 16 unclassified seed items, and loading into a Wikibase instance
 - Additional search phrases (light pollution, skyglow, night sky brightness, ...), and removal of near-duplicate records
 - A flag for papers that never mention light, and a language filter

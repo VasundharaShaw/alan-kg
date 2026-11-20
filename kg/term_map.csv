@@ -1,0 +1,31 @@
+term,category,item,match
+illuminance,quantity,illuminance,exact
+irradiance,quantity,irradiance,exact
+radiance,quantity,radiance,exact
+luminance,quantity,luminance,exact
+spectral irradiance,quantity,spectral irradiance,exact
+spectral radiance,quantity,spectral radiance,exact
+photon irradiance,quantity,photon irradiance,exact
+sky brightness,quantity,night sky brightness,exact
+night sky brightness,quantity,night sky brightness,exact
+photosynthetically active radiation,quantity,photosynthetically active radiation,exact
+PAR,quantity,photosynthetically active radiation,exact
+photon flux,quantity,photon irradiance,broad
+lux,unit,lx,exact
+lx,unit,lx,exact
+mag/arcsec2,unit,mag/arcsec2,exact
+magnitudes per square arcsecond,unit,mag/arcsec2,exact
+cd/m2,unit,cd/m2,exact
+W/m2,unit,W/m2,exact
+µmol/s,unit,umol/m2/s,broad
+μmol photons,unit,umol/m2/s,broad
+watts,unit,W/m2,broad
+multispectral,method,multispectral imaging device,broad
+astronomy,discipline,astronomers,broad
+ecology,discipline,ecologists,broad
+visual ecology,discipline,visual ecologists,broad
+lighting engineering,discipline,lighting engineers,broad
+SQM,method,Sky Quality Meter,exact
+UAV,method,drone,exact
+DSLR,method,digital camera,exact
+all-sky photometry,method,all-sky,broad

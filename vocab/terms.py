@@ -18,12 +18,13 @@ QUANTITIES = [
     "illuminance", "irradiance", "radiance", "sky brightness",
     "photosynthetically active radiation", "PAR", "photon flux",
     "spectral composition", "spectral sensitivity", "photoperiod",
-    "intensity", "wavelength", "threshold",
+    "intensity", "wavelength", "threshold", "luminance", "spectral irradiance", "spectral radiance", "photon irradiance",
+    "night sky brightness",
 ]
 
 UNITS = [
     "lux", "lx", "mag/arcsec2", "magnitudes per square arcsecond",
-    "µmol/s", "μmol photons", "W", "watts",
+    "µmol/s", "μmol photons", "W", "watts", "cd/m2", "W/m2", "lm/m2/sr", "candela per square metre",
 ]
 
 DISCIPLINES = [
